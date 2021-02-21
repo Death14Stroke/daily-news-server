@@ -1,6 +1,8 @@
 const express = require('express');
 const news = require('../api/news');
 const categories = require('../data/categories');
+const highlights = require('../dummy/highlights.json');
+const recents = require('../dummy/recents.json');
 
 const router = express.Router();
 
@@ -12,53 +14,83 @@ router.get('/categories', (req, res) => {
 });
 
 router.get('/highlights', async (req, res) => {
-	const { country } = req.query;
+	const { country, page, pageSize, category } = req.query;
+	console.log('get highlights:', country, category, page, pageSize);
 
-	try {
-		let response = await news.get('/top-headlines', {
-			params: {
-				country
-			}
-		});
-		res.send(response.data);
-	} catch (err) {
-		return res.status(422).send('Could not fetch news');
-	}
-});
+	res.send(highlights);
 
-router.get('/category-news', async (req, res) => {
-	const { country, category } = req.query;
-
-	try {
-		let response = await news.get('/top-headlines', {
-			params: {
-				country,
-				category
-			}
-		});
-		res.send(response.data);
-	} catch (err) {
-		return res.status(422).send('Could not fetch news');
-	}
+	// try {
+	// 	let {data} = await news.get('/top-headlines', {
+	// 		params: {
+	// 			country,
+	//			category,
+	// 			page,
+	// 			pageSize
+	// 		}
+	// 	});
+	// 	console.log(data);
+	// 	res.send(data);
+	// } catch (err) {
+	// 	return res.status(422).send('Could not fetch news');
+	// }
 });
 
 router.get('/recents', async (req, res) => {
 	const { country } = req.query;
-	console.log(country);
+
+	// try {
+	// 	const results = await Promise.all(
+	// 		categories.map(category => getTopHighlight({ category, country }))
+	// 	);
+	// 	const response = {
+	// 		recents: results.map((result, index) => {
+	// 			return {
+	// 				category: capitalize(categories[index]),
+	// 				...result.data.articles[0]
+	// 			};
+	// 		})
+	// 	};
+	// 	console.log(response);
+	// 	res.send(response);
+	// } catch (err) {
+	// 	console.log(err);
+	// 	return res.status(422).send('Could not fetch news');
+	// }
+
+	res.send(recents);
+});
+
+router.get('/sources', async (req, res) => {
+	const { country, category, language } = req.query;
 
 	try {
-		const results = await Promise.all(
-			categories.map(category => getTopHighlight({ category, country }))
-		);
-		const response = {
-			recents: results.map((result, index) => {
-				return {
-					category: capitalize(categories[index]),
-					...result.data.articles[0]
-				};
-			})
-		};
-		res.send(response);
+		const { data } = await news.get('/sources', {
+			params: {
+				//country,
+				category,
+				language
+			}
+		});
+		res.send(data);
+	} catch (err) {
+		console.log(err);
+		return res.status(422).send('Could not fetch news');
+	}
+});
+
+router.get('/search', async (req, res) => {
+	const { query, language, page, pageSize } = req.query;
+
+	try {
+		const { data } = await news.get('/everything', {
+			params: {
+				q: query,
+				language,
+				page,
+				pageSize
+			}
+		});
+		res.send(data);
 	} catch (err) {
 		console.log(err);
 		return res.status(422).send('Could not fetch news');

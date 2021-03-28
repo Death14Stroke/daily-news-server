@@ -1,4 +1,4 @@
-module.exports = [
+export default [
 	'business',
 	'entertainment',
 	'general',

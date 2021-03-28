@@ -1,6 +1,10 @@
-const express = require('express');
-const news = require('../api/news');
-const categories = require('../data/categories');
+import express, { Request } from 'express';
+import { AxiosPromise } from 'axios';
+import news from '../api/news';
+import categories from '../data/categories';
+import { capitalize } from '../utils/strings';
+
+type HighlightParams = { country: string; category: string };
 
 const router = express.Router();
 
@@ -23,8 +27,12 @@ router.get('/highlights', async (req, res) => {
 	}
 });
 
-router.get('/recents', async (req, res) => {
+router.get('/recents', async (req: Request, res) => {
 	const { country } = req.query;
+
+	if (typeof country !== 'string') {
+		return res.status(422).send('Invalid or missing arguments');
+	}
 
 	try {
 		const results = await Promise.all(
@@ -82,7 +90,10 @@ router.get('/search', async (req, res) => {
 	}
 });
 
-const getTopHighlight = ({ category, country }) => {
+const getTopHighlight = ({
+	category,
+	country
+}: HighlightParams): AxiosPromise => {
 	return news.get('/top-headlines', {
 		params: {
 			country,
@@ -92,8 +103,4 @@ const getTopHighlight = ({ category, country }) => {
 	});
 };
 
-const capitalize = str => {
-	return str[0].toUpperCase() + str.slice(1);
-};
-
-module.exports = router;
+export default router;

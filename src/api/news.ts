@@ -1,5 +1,5 @@
-const axios = require('axios');
-const apiKey = require('../../apiKey');
+import axios from 'axios';
+import { apiKey } from '../config';
 
 const instance = axios.create({
 	baseURL: 'https://newsapi.org/v2'
@@ -16,4 +16,4 @@ instance.interceptors.request.use(
 	}
 );
 
-module.exports = instance;
+export default instance;
